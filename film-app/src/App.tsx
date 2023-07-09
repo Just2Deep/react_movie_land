@@ -9,18 +9,21 @@ const App = () => {
   const [movies, setMovies] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const searchMovies = async (title: string) => {
-    await fetch(`${API_URL}&s=${title}`)
-      .then((res) => res.json()) // parse response as JSON
-      .then((data) => {
-        return setMovies(data.Search);
-      })
-      .catch(({ err }) => {
-        return console.log(`error ${err}`);
-      });
+    if (!title) {
+      console.log("title is empty");
+    } else {
+      await fetch(`${API_URL}&s=${title}`)
+        .then((res) => res.json()) // parse response as JSON
+        .then((data) => {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+          setMovies(data.Search);
+        })
+        .catch((err) => console.log(err));
+    }
   };
 
   useEffect(() => {
-    searchMovies("superman");
+    searchMovies("superman").catch((err) => console.log(err));
   }, []);
   return (
     <div className="app">
@@ -36,7 +39,7 @@ const App = () => {
           src={SearchIcon}
           alt="search"
           onClick={() => {
-            searchMovies(searchTerm);
+            searchMovies(searchTerm).catch((err) => console.log(err));
           }}
         />
       </div>
@@ -44,7 +47,7 @@ const App = () => {
       {movies?.length > 0 ? (
         <div className="container">
           {movies.map((movie) => (
-            <MovieCard movie={movie} key={movie.Title} />
+            <MovieCard movie={movie} key={movie["imdbID"]} />
           ))}
         </div>
       ) : (
